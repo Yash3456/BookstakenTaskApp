@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Text, View } from '@/components/Themed';
 import { Feather } from '@expo/vector-icons';
 import { RotateInDownLeft } from 'react-native-reanimated';
+import axios from "axios"
+import { error } from 'console';
 
 interface CardDetail {
   symbol: String
@@ -21,7 +23,7 @@ export default function TabOneScreen() {
   const getDataagain = async () => {
 
     const apiResponse = await fetch(
-      'http://192.168.0.156:9000/gettask',{
+      'https://bookstakentaskbackend.vercel.app/gettask',{
         method:"GET"
       }
     );
@@ -29,20 +31,24 @@ export default function TabOneScreen() {
     settasks(data);
     console.log(tasks);
   };  
+
+  const getData = async () => {
+
+    const apiResponse = await axios.get("https://bookstakentaskbackend.vercel.app/gettask")
+                            .then((response)=>{
+                               settasks(response.data);
+                               console.log(response.data);  
+
+                               if(response.data !== null) console.log("SUCCESS")
+                               else console.log("Failed")
+
+                            }) 
+                            .catch((error)=> {
+                              console.error('Error fetching data:', error);
+                            });
+};
   
   useEffect(() => {
-
-    const getData = async () => {
-      const apiResponse = await fetch(
-        'http://192.168.0.156:9000/gettask',{
-          method:"GET"
-        }
-      );
-      const data = await apiResponse.json();
-      settasks(data);
-      console.log(tasks);
-    };  
-
     getData();
   }, []);
 

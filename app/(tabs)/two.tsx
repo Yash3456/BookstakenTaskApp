@@ -1,8 +1,9 @@
-import { StyleSheet, TextInput, TouchableOpacity, useColorScheme } from 'react-native';
+import { Alert, StyleSheet, TextInput, TouchableOpacity, useColorScheme } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { useState } from 'react';
+import axios from 'axios';
 
 export default function TabTwoScreen() {
 
@@ -12,30 +13,36 @@ export default function TabTwoScreen() {
   const [task,settask] = useState("");
 
 
-  const getData = async () => {
+  const details = {
+    username: username,
+    task: task,
+    symbol:username[0],
+    position: username[0] === 'Y' ? "CTO" : username[0] === 'S' ? "CEO" : "COO"
+  };
 
-    const details = {
-      username:username,
-      task: task,
-      Symbol: username[0].toUpperCase(),
-      position: username[0].toUpperCase() === 'y' ? "CTO" : username[0].toUpperCase() === 'S' ? "CEO" : "COO"
-    }
- 
-    const apiResponse = await fetch(
-      'http://192.168.0.156:9000/newtask',{
-        method:"POST",
-        headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(details)
-      }
-    );
+  const requestOptions = { 
+    method: 'POST', 
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify(details) 
+}; 
+
+const postData = async () => { 
+    try { 
+        await fetch( 
+            'https://bookstakentaskbackend.vercel.app/newtask', requestOptions) 
+            .then(response => { 
+                response.json() 
+                    .then(()=>{
+                      setusername("");
+                      settask("");
+                    }); 
+            }) 
+    } 
+    catch (error) { 
+        console.error(error); 
+    } 
+} 
     
-    console.log(details);
-    const data = await apiResponse.json();
-    console.log(data)
-    
-  };  
   
 
   return (
@@ -54,7 +61,7 @@ export default function TabTwoScreen() {
               marginHorizontal: 4
             }}>
             <Text style={{ marginTop: 10, color: colorscheme === "dark" ? "#ffffffCC" : "#000" }}>UserName</Text>
-            <TextInput style={{ color: colorscheme === "dark" ? "#fff" : "#000" }} onChangeText={val=> setusername(val)} />
+            <TextInput style={{ color: colorscheme === "dark" ? "#fff" : "#000" }} value={username} onChangeText={val=> setusername(val)} />
           </View>
 
           <View
@@ -67,11 +74,11 @@ export default function TabTwoScreen() {
               marginHorizontal: 4
             }}>
             <Text style={{ marginTop: 10, color: colorscheme === "dark" ? "#ffffffCC" : "#000" }}>Task</Text>
-            <TextInput style={{ color: colorscheme === "dark" ? "#fff" : "#000" }} onChangeText={text=> settask(text)} />
+            <TextInput style={{ color: colorscheme === "dark" ? "#fff" : "#000" }} value={task} onChangeText={text=> settask(text)} />
           </View>
         </View>
         
-      <TouchableOpacity style={[styles.submit,{ backgroundColor:colorscheme === "dark" ? "#fff" : "#000", bottom:0 }]} onPress={getData} >
+      <TouchableOpacity style={[styles.submit,{ backgroundColor:colorscheme === "dark" ? "#fff" : "#000", bottom:0 }]} onPress={postData} >
      <Text style={[styles.SubmitText,{color:colorscheme === "dark" ? "#000" : "#fff"}]}>Register</Text>
      </TouchableOpacity>
 
